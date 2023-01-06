@@ -9,14 +9,14 @@ using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_OWO.PistolWhip_OWO), "PistolWhip_OWO", "2.0.0", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.0.0", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
 
-namespace PistolWhip_OWO
+namespace PistolWhip_ProTube
 {
-    public class PistolWhip_OWO : MelonMod
+    public class PistolWhip_ProTube : MelonMod
     {
         //public static TactsuitVR tactsuitVr = null!;
         public static bool rightGunHasAmmo = true;
