@@ -9,7 +9,7 @@ using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.0.0", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.0.1", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
@@ -55,7 +55,7 @@ namespace PistolWhip_ProTube
             {
                 //bool isRightHand = false;
                 //if (checkIfRightHand(__instance.hand.name)) isRightHand = true;
-                ForceTubeVRInterface.Rumble(50, 100.0f);
+                ForceTubeVRInterface.Rumble(255, 100.0f, ForceTubeVRChannel.all);
             }
         }
 
@@ -95,11 +95,11 @@ namespace PistolWhip_ProTube
                     case 3:
                         // Boomstick (Shotgun)
                         //kickPower = 255;
-                        ForceTubeVRInterface.Shoot(255, 200, 100f);
+                        ForceTubeVRInterface.Shoot(255, 200, 50f, ForceTubeVRChannel.all);
                         return;
                     case 4:
                         // Knuckles
-                        ForceTubeVRInterface.Rumble(200, 200f);
+                        ForceTubeVRInterface.Rumble(200, 200f, ForceTubeVRChannel.all);
                         return;
                     default:
                         kickPower = 210;
@@ -109,6 +109,7 @@ namespace PistolWhip_ProTube
             }
         }
 
+        /*
         [HarmonyPatch(typeof(Reloader), "SetReloadMethod")]
         public class bhaptics_ReloadMethod
         {
@@ -123,7 +124,7 @@ namespace PistolWhip_ProTube
                 catch { return; }
             }
         }
-
+        */
 
         [HarmonyPatch(typeof(Gun), "Reload")]
         public class bhaptics_GunReload
@@ -137,6 +138,7 @@ namespace PistolWhip_ProTube
                     if (triggeredByMelee) { return; }
                 }
                 catch { return; }
+                /*
                 if (__instance.reloadGestureTypeVar.Value == ESettings_ReloadType.DOWN) { reloadHip = true; reloadShoulder = false; }
                 if (__instance.reloadGestureTypeVar.Value == ESettings_ReloadType.UP) { reloadHip = false; reloadShoulder = true; }
                 if (__instance.reloadGestureTypeVar.Value == ESettings_ReloadType.BOTH)
@@ -144,12 +146,13 @@ namespace PistolWhip_ProTube
                     if ((__instance.player.head.position.y - __instance.hand.position.y) >= 0.3f) { reloadHip = true; reloadShoulder = false; }
                     else { reloadHip = false; reloadShoulder = true; }
                 }
+                */
                 //if (__instance.nextReload >= 5.0f) { return; }
                 //bool isRightHand;
                 //if (checkIfRightHand(__instance.hand.name)) { isRightHand = true; }
                 //else { isRightHand = false; }
                 //tactsuitVr.GunReload(isRightHand, reloadHip, reloadShoulder, reloadTrigger);
-                ForceTubeVRInterface.Rumble(20, 100f);
+                ForceTubeVRInterface.Rumble(200, 100f);
             }
         }
 
