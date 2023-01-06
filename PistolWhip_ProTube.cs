@@ -77,32 +77,32 @@ namespace PistolWhip_ProTube
                     //isRightHand = false;
                     if (!leftGunHasAmmo) { return; }
                 }
-                byte kickPower = 150;
+                byte kickPower = 210;
                 switch (__instance.gunType)
                 {
                     case 0:
                         // Pistol
-                        kickPower = 150;
+                        kickPower = 210;
                         break;
                     case 1:
                         // Revolver
-                        kickPower = 200;
+                        kickPower = 230;
                         break;
                     case 2:
                         // Burstfire
-                        kickPower = 120;
+                        kickPower = 180;
                         break;
                     case 3:
                         // Boomstick (Shotgun)
-                        kickPower = 250;
-                        break;
+                        //kickPower = 255;
+                        ForceTubeVRInterface.Shoot(255, 200, 100f);
+                        return;
                     case 4:
                         // Knuckles
+                        ForceTubeVRInterface.Rumble(200, 200f);
                         return;
-                        //kickPower = 50;
-                        //break;
                     default:
-                        kickPower = 150;
+                        kickPower = 210;
                         break;
                 }
                 ForceTubeVRInterface.Kick(kickPower, ForceTubeVRChannel.all);
