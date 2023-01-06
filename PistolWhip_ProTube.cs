@@ -18,7 +18,6 @@ namespace PistolWhip_ProTube
 {
     public class PistolWhip_ProTube : MelonMod
     {
-        //public static TactsuitVR tactsuitVr = null!;
         public static bool rightGunHasAmmo = true;
         public static bool leftGunHasAmmo = true;
         public static bool reloadHip = true;
@@ -28,8 +27,6 @@ namespace PistolWhip_ProTube
 
         public override void OnInitializeMelon()
         {
-            //base.OnApplicationStart();
-            //tactsuitVr = new TactsuitVR();
             ForceTubeVRInterface.InitAsync();
         }
 
@@ -59,7 +56,6 @@ namespace PistolWhip_ProTube
                 //bool isRightHand = false;
                 //if (checkIfRightHand(__instance.hand.name)) isRightHand = true;
                 ForceTubeVRInterface.Rumble(50, 100.0f);
-                //tactsuitVr.Recoil(isRightHand);
             }
         }
 
@@ -81,8 +77,35 @@ namespace PistolWhip_ProTube
                     //isRightHand = false;
                     if (!leftGunHasAmmo) { return; }
                 }
-                ForceTubeVRInterface.Kick(50, ForceTubeVRChannel.all);
-                //tactsuitVr.Recoil(isRightHand);
+                byte kickPower = 150;
+                switch (__instance.gunType)
+                {
+                    case 0:
+                        // Pistol
+                        kickPower = 150;
+                        break;
+                    case 1:
+                        // Revolver
+                        kickPower = 200;
+                        break;
+                    case 2:
+                        // Burstfire
+                        kickPower = 120;
+                        break;
+                    case 3:
+                        // Boomstick (Shotgun)
+                        kickPower = 250;
+                        break;
+                    case 4:
+                        // Knuckles
+                        return;
+                        //kickPower = 50;
+                        //break;
+                    default:
+                        kickPower = 150;
+                        break;
+                }
+                ForceTubeVRInterface.Kick(kickPower, ForceTubeVRChannel.all);
             }
         }
 
@@ -125,8 +148,8 @@ namespace PistolWhip_ProTube
                 //bool isRightHand;
                 //if (checkIfRightHand(__instance.hand.name)) { isRightHand = true; }
                 //else { isRightHand = false; }
-                ForceTubeVRInterface.Rumble(20, 100f);
                 //tactsuitVr.GunReload(isRightHand, reloadHip, reloadShoulder, reloadTrigger);
+                ForceTubeVRInterface.Rumble(20, 100f);
             }
         }
 
