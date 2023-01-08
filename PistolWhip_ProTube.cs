@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 using UnityEngine;
 
 using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.0.1", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.0", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
@@ -24,11 +25,54 @@ namespace PistolWhip_ProTube
         public static bool reloadShoulder = false;
         public static bool reloadTrigger = false;
         public static bool justKilled = false;
+        public static string configPath = Directory.GetCurrentDirectory() + "\\UserData\\";
+        public static bool dualWield = false;
 
         public override void OnInitializeMelon()
         {
-            ForceTubeVRInterface.InitAsync();
+            InitializeProTube();
         }
+
+        public static void saveChannel(string channelName, string proTubeName)
+        {
+            string fileName = configPath + channelName + ".pro";
+            File.WriteAllText(fileName, proTubeName, Encoding.UTF8);
+        }
+
+        public static string readChannel(string channelName)
+        {
+            string fileName = configPath + channelName + ".pro";
+            if (!File.Exists(fileName)) return "";
+            return File.ReadAllText(fileName, Encoding.UTF8);
+        }
+
+        private async void InitializeProTube()
+        {
+            MelonLogger.Msg("Initializing ProTube gear...");
+            await ForceTubeVRInterface.InitAsync(true);
+            Thread.Sleep(10000);
+            //MelonLogger.Msg("Channels: " + ForceTubeVRInterface.ListChannels());
+            JsonDocument doc = JsonDocument.Parse(ForceTubeVRInterface.ListChannels());
+            JsonElement pistol1 = doc.RootElement.GetProperty("channels").GetProperty("pistol1");
+            JsonElement pistol2 = doc.RootElement.GetProperty("channels").GetProperty("pistol2");
+            if ((pistol1.GetArrayLength() > 0) && (pistol2.GetArrayLength() > 0))
+            {
+                dualWield = true;
+                if ((readChannel("pistol1") == "") || (readChannel("pistol2") == ""))
+                {
+                    saveChannel("pistol1", pistol1[0].GetProperty("name").ToString());
+                    saveChannel("pistol2", pistol2[0].GetProperty("name").ToString());
+                }
+                else
+                {
+                    ForceTubeVRInterface.ClearChannel(4);
+                    ForceTubeVRInterface.ClearChannel(5);
+                    ForceTubeVRInterface.AddToChannel(4, readChannel("pistol1"));
+                    ForceTubeVRInterface.AddToChannel(5, readChannel("pistol2"));
+                }
+            }
+        }
+
 
         private static void setAmmo(bool hasAmmo, bool isRight)
         {
@@ -55,7 +99,9 @@ namespace PistolWhip_ProTube
             {
                 //bool isRightHand = false;
                 //if (checkIfRightHand(__instance.hand.name)) isRightHand = true;
-                ForceTubeVRInterface.Rumble(255, 100.0f, ForceTubeVRChannel.all);
+                ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
+                if (!checkIfRightHand(__instance.hand.name)) myChannel = ForceTubeVRChannel.pistol2;
+                ForceTubeVRInterface.Rumble(255, 200.0f, myChannel);
             }
         }
 
@@ -66,15 +112,14 @@ namespace PistolWhip_ProTube
             [HarmonyPostfix]
             public static void Postfix(Gun __instance)
             {
-                //bool isRightHand;
+                ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
                 if (checkIfRightHand(__instance.hand.name))
                 {
-                    //isRightHand = true;
                     if (!rightGunHasAmmo) { return; }
                 }
                 else
                 {
-                    //isRightHand = false;
+                    myChannel = ForceTubeVRChannel.pistol2;
                     if (!leftGunHasAmmo) { return; }
                 }
                 byte kickPower = 210;
@@ -95,36 +140,20 @@ namespace PistolWhip_ProTube
                     case 3:
                         // Boomstick (Shotgun)
                         //kickPower = 255;
-                        ForceTubeVRInterface.Shoot(255, 200, 50f, ForceTubeVRChannel.all);
+                        ForceTubeVRInterface.Shoot(255, 200, 100f, myChannel);
                         return;
                     case 4:
                         // Knuckles
-                        ForceTubeVRInterface.Rumble(200, 200f, ForceTubeVRChannel.all);
+                        ForceTubeVRInterface.Rumble(255, 200f, myChannel);
                         return;
                     default:
                         kickPower = 210;
                         break;
                 }
-                ForceTubeVRInterface.Kick(kickPower, ForceTubeVRChannel.all);
+                ForceTubeVRInterface.Kick(kickPower, myChannel);
             }
         }
 
-        /*
-        [HarmonyPatch(typeof(Reloader), "SetReloadMethod")]
-        public class bhaptics_ReloadMethod
-        {
-            [HarmonyPostfix]
-            public static void Postfix(Reloader __instance, Reloader.ReloadMethod method)
-            {
-                try
-                {
-                    if (method.ToString() == "Gesture") { reloadTrigger = false; }
-                    else { reloadTrigger = true; }
-                }
-                catch { return; }
-            }
-        }
-        */
 
         [HarmonyPatch(typeof(Gun), "Reload")]
         public class bhaptics_GunReload
@@ -138,21 +167,9 @@ namespace PistolWhip_ProTube
                     if (triggeredByMelee) { return; }
                 }
                 catch { return; }
-                /*
-                if (__instance.reloadGestureTypeVar.Value == ESettings_ReloadType.DOWN) { reloadHip = true; reloadShoulder = false; }
-                if (__instance.reloadGestureTypeVar.Value == ESettings_ReloadType.UP) { reloadHip = false; reloadShoulder = true; }
-                if (__instance.reloadGestureTypeVar.Value == ESettings_ReloadType.BOTH)
-                {
-                    if ((__instance.player.head.position.y - __instance.hand.position.y) >= 0.3f) { reloadHip = true; reloadShoulder = false; }
-                    else { reloadHip = false; reloadShoulder = true; }
-                }
-                */
-                //if (__instance.nextReload >= 5.0f) { return; }
-                //bool isRightHand;
-                //if (checkIfRightHand(__instance.hand.name)) { isRightHand = true; }
-                //else { isRightHand = false; }
-                //tactsuitVr.GunReload(isRightHand, reloadHip, reloadShoulder, reloadTrigger);
-                ForceTubeVRInterface.Rumble(200, 100f);
+                ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
+                if (!checkIfRightHand(__instance.hand.name)) myChannel = ForceTubeVRChannel.pistol2;
+                ForceTubeVRInterface.Rumble(200, 100f, myChannel);
             }
         }
 

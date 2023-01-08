@@ -77,12 +77,12 @@ public class ForceTubeVRInterface : MonoBehaviour
     ///By default, InitAsync() place the first ForceTubeVR detected in the channel "rifleButt" and the second in "rifleBolt". 
     ///If it receives a boolean true as first param, the first forcetubevr is placed in "pistol1" and the second in "pistol2". 
     ///</summary>
-    public static void InitAsync(bool pistolsFirst = false)
+    public static Task InitAsync(bool pistolsFirst = false)
 	{
             if (pistolsFirst) {
-					InitPistol_x64 ();
+                return Task.Run(() => InitPistol_x64());
 			} else {
-					InitRifle_x64 ();
+            return Task.Run(() => InitRifle_x64());
 			}
     }
 
@@ -161,7 +161,7 @@ public class ForceTubeVRInterface : MonoBehaviour
     public static bool LoadChannelJSon()
     {
         string path = Application.persistentDataPath;
-        string filePath = path + "/Channels.json";
+        string filePath = path + "/UserData/ProTube/Channels.json";
         Debug.Log("filePath : " + filePath);
         string dataAsJson = File.ReadAllText(filePath);
         return  ForceTubeVRInterface.InitChannels(dataAsJson);
@@ -171,7 +171,7 @@ public class ForceTubeVRInterface : MonoBehaviour
     {
         string sText = ForceTubeVRInterface.ListChannels();
         string path = Application.persistentDataPath;
-        string filePath = path + "/Channels.json";
+        string filePath = path + "/UserData/ProTubeChannels.json";
         Debug.Log("filePath : " + filePath);
         File.WriteAllText(filePath, sText);
         return true;
