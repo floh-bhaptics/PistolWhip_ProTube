@@ -10,7 +10,7 @@ using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.0", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.1", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
@@ -46,11 +46,8 @@ namespace PistolWhip_ProTube
             return File.ReadAllText(fileName, Encoding.UTF8);
         }
 
-        private async void InitializeProTube()
+        public static void dualWieldSort()
         {
-            MelonLogger.Msg("Initializing ProTube gear...");
-            await ForceTubeVRInterface.InitAsync(true);
-            Thread.Sleep(10000);
             //MelonLogger.Msg("Channels: " + ForceTubeVRInterface.ListChannels());
             JsonDocument doc = JsonDocument.Parse(ForceTubeVRInterface.ListChannels());
             JsonElement pistol1 = doc.RootElement.GetProperty("channels").GetProperty("pistol1");
@@ -58,19 +55,32 @@ namespace PistolWhip_ProTube
             if ((pistol1.GetArrayLength() > 0) && (pistol2.GetArrayLength() > 0))
             {
                 dualWield = true;
+                MelonLogger.Msg("Two ProTube devices detected, player is dual wielding.");
                 if ((readChannel("pistol1") == "") || (readChannel("pistol2") == ""))
                 {
+                    MelonLogger.Msg("No configuration files found, saving current right and left hand pistols.");
                     saveChannel("pistol1", pistol1[0].GetProperty("name").ToString());
                     saveChannel("pistol2", pistol2[0].GetProperty("name").ToString());
                 }
                 else
                 {
+                    string rightHand = readChannel("pistol1");
+                    string leftHand = readChannel("pistol2");
+                    MelonLogger.Msg("Found and loaded configuration. Right hand: " + rightHand + ", Left hand: " + leftHand);
                     ForceTubeVRInterface.ClearChannel(4);
                     ForceTubeVRInterface.ClearChannel(5);
-                    ForceTubeVRInterface.AddToChannel(4, readChannel("pistol1"));
-                    ForceTubeVRInterface.AddToChannel(5, readChannel("pistol2"));
+                    ForceTubeVRInterface.AddToChannel(4, rightHand);
+                    ForceTubeVRInterface.AddToChannel(5, leftHand);
                 }
             }
+        }
+
+        private async void InitializeProTube()
+        {
+            MelonLogger.Msg("Initializing ProTube gear...");
+            await ForceTubeVRInterface.InitAsync(true);
+            Thread.Sleep(10000);
+            dualWieldSort();
         }
 
 
@@ -97,8 +107,6 @@ namespace PistolWhip_ProTube
             [HarmonyPostfix]
             public static void Postfix(MeleeWeapon __instance)
             {
-                //bool isRightHand = false;
-                //if (checkIfRightHand(__instance.hand.name)) isRightHand = true;
                 ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
                 if (!checkIfRightHand(__instance.hand.name)) myChannel = ForceTubeVRChannel.pistol2;
                 ForceTubeVRInterface.Rumble(255, 200.0f, myChannel);
@@ -139,7 +147,6 @@ namespace PistolWhip_ProTube
                         break;
                     case 3:
                         // Boomstick (Shotgun)
-                        //kickPower = 255;
                         ForceTubeVRInterface.Shoot(255, 200, 100f, myChannel);
                         return;
                     case 4:
