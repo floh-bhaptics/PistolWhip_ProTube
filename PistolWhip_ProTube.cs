@@ -108,9 +108,8 @@ namespace PistolWhip_ProTube
             public static void Postfix(MeleeWeapon __instance)
             {
                 ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
-                if (dualWield)
-                    if (!checkIfRightHand(__instance.hand.name))
-                        myChannel = ForceTubeVRChannel.pistol2;
+                if (!checkIfRightHand(__instance.hand.name))
+                    myChannel = ForceTubeVRChannel.pistol2;
                 ForceTubeVRInterface.Rumble(255, 200.0f, myChannel);
             }
         }
@@ -129,8 +128,7 @@ namespace PistolWhip_ProTube
                 }
                 else
                 {
-                    if (dualWield)
-                        myChannel = ForceTubeVRChannel.pistol2;
+                    myChannel = ForceTubeVRChannel.pistol2;
                     if (!leftGunHasAmmo) { return; }
                 }
                 byte kickPower = 210;
@@ -178,9 +176,8 @@ namespace PistolWhip_ProTube
                 }
                 catch { return; }
                 ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
-                if (dualWield)
-                    if (!checkIfRightHand(__instance.hand.name))
-                        myChannel = ForceTubeVRChannel.pistol2;
+                if (!checkIfRightHand(__instance.hand.name))
+                    myChannel = ForceTubeVRChannel.pistol2;
                 ForceTubeVRInterface.Rumble(200, 100f, myChannel);
             }
         }
