@@ -10,7 +10,7 @@ using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.1", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.2", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
@@ -178,7 +178,7 @@ namespace PistolWhip_ProTube
                 ForceTubeVRChannel myChannel = ForceTubeVRChannel.pistol1;
                 if (!checkIfRightHand(__instance.hand.name))
                     myChannel = ForceTubeVRChannel.pistol2;
-                ForceTubeVRInterface.Rumble(200, 100f, myChannel);
+                ForceTubeVRInterface.Rumble(200, 40f, myChannel);
             }
         }
 
