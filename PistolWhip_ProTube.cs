@@ -10,7 +10,7 @@ using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.2", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.3", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
@@ -56,16 +56,16 @@ namespace PistolWhip_ProTube
             {
                 dualWield = true;
                 MelonLogger.Msg("Two ProTube devices detected, player is dual wielding.");
-                if ((readChannel("pistol1") == "") || (readChannel("pistol2") == ""))
+                if ((readChannel("rightHand") == "") || (readChannel("leftHand") == ""))
                 {
                     MelonLogger.Msg("No configuration files found, saving current right and left hand pistols.");
-                    saveChannel("pistol1", pistol1[0].GetProperty("name").ToString());
-                    saveChannel("pistol2", pistol2[0].GetProperty("name").ToString());
+                    saveChannel("rightHand", pistol1[0].GetProperty("name").ToString());
+                    saveChannel("leftHand", pistol2[0].GetProperty("name").ToString());
                 }
                 else
                 {
-                    string rightHand = readChannel("pistol1");
-                    string leftHand = readChannel("pistol2");
+                    string rightHand = readChannel("rightHand");
+                    string leftHand = readChannel("leftHand");
                     MelonLogger.Msg("Found and loaded configuration. Right hand: " + rightHand + ", Left hand: " + leftHand);
                     ForceTubeVRInterface.ClearChannel(4);
                     ForceTubeVRInterface.ClearChannel(5);
