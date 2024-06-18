@@ -10,7 +10,7 @@ using MelonLoader;
 using HarmonyLib;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.1.3", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(PistolWhip_ProTube.PistolWhip_ProTube), "PistolWhip_ProTube", "1.2.0", "Florian Fahrenberger")]
 [assembly: MelonGame("Cloudhead Games, Ltd.", "Pistol Whip")]
 
 
@@ -72,6 +72,16 @@ namespace PistolWhip_ProTube
                     ForceTubeVRInterface.AddToChannel(4, rightHand);
                     ForceTubeVRInterface.AddToChannel(5, leftHand);
                 }
+            }
+            else if (File.Exists(configPath + "lefty.pro"))
+            {
+                MelonLogger.Msg("File for only left channel detected. Player is a lefty.");
+                string leftHand = pistol1[0].GetProperty("name").ToString();
+                MelonLogger.Msg("Found one ProTube device. Left hand: " + leftHand);
+                ForceTubeVRInterface.ClearChannel(4);
+                ForceTubeVRInterface.ClearChannel(5);
+                // ForceTubeVRInterface.AddToChannel(4, rightHand);
+                ForceTubeVRInterface.AddToChannel(5, leftHand);
             }
         }
 
